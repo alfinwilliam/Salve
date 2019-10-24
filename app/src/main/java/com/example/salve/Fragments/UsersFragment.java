@@ -125,12 +125,15 @@ public class UsersFragment extends Fragment {
                     for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                         User user = snapshot.getValue(User.class);
 
-                        Log.d("TAG","uid: "+firebaseUser.getUid().toString());
-                        Log.d("TAG","getid: "+user.getId().toString());
+                        try {
+                            if (!user.getId().equals(firebaseUser.getUid())) {
+                                Log.d("TAG", "fff");
+                                mUsers.add(user);
+                            }
+                        }
+                        catch(Exception e)
+                        {
 
-                        if (!user.getId().toString().equals(firebaseUser.getUid().toString()) && !user.getId().equals("null")) {
-                            Log.d("TAG","fff");
-                            mUsers.add(user);
                         }
 
                     }

@@ -98,9 +98,15 @@ public class ChatsFragment extends Fragment {
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()){
                     User user = snapshot.getValue(User.class);
                     for (Chatlist chatlist : usersList){
-                        if (user.getId().equals(chatlist.getId())){
-                            mUsers.add(user);
-                        }
+                      try {
+                          if (user.getId().equals(chatlist.getId())) {
+                              mUsers.add(user);
+                          }
+                      }
+                      catch(Exception e)
+                      {
+
+                      }
                     }
                 }
                 userAdapter = new UserAdapter(getContext(), mUsers, true);
