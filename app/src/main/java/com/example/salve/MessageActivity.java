@@ -3,10 +3,15 @@ package com.example.salve;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,6 +34,16 @@ import com.example.salve.Notifications.MyResponse;
 import com.example.salve.Notifications.Sender;
 import com.example.salve.Notifications.Token;
 
+import org.w3c.dom.Text;
+
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -45,6 +60,13 @@ import retrofit2.Response;
 
 public class MessageActivity extends AppCompatActivity {
 
+   // private boolean same = false;
+
+    String ip = "192.168.43.33";
+    String quit_msg = "q";
+    Integer port = 5000;
+    Socket socket;
+
     CircleImageView profile_image;
     TextView username;
 
@@ -58,6 +80,8 @@ public class MessageActivity extends AppCompatActivity {
     List<Chat> mchat;
 
     RecyclerView recyclerView;
+
+    ArrayList<Boolean> pinfo = new ArrayList<>();
 
     Intent intent;
 
@@ -73,6 +97,8 @@ public class MessageActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_message);
+
+        new Thread(new ClientThread()).start();
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -270,16 +296,44 @@ public class MessageActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 mchat.clear();
+                pinfo.clear();
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()){
                     Chat chat = snapshot.getValue(Chat.class);
                     if (chat.getReceiver().equals(myid) && chat.getSender().equals(userid) ||
                             chat.getReceiver().equals(userid) && chat.getSender().equals(myid)){
                         mchat.add(chat);
+
+
+
+                        pinfo.add(chat.getSender().equals(myid));
+
+
                     }
 
                     messageAdapter = new MessageAdapter(MessageActivity.this, mchat, imageurl);
+
                     recyclerView.setAdapter(messageAdapter);
+
+
                 }
+
+
+try {
+    int count = pinfo.size() - 1;
+    LinearLayout spanel = findViewById(R.id.spanel);
+    if (pinfo.get(count).equals(false)) {
+        new ConnectionTask().execute(mchat.get(count).getMessage());
+        spanel.setVisibility(View.VISIBLE);
+    } else {
+        spanel.setVisibility(View.GONE);
+    }
+
+}catch (Exception e)
+{
+
+}
+
+
             }
 
             @Override
@@ -304,6 +358,114 @@ public class MessageActivity extends AppCompatActivity {
         reference.updateChildren(hashMap);
     }
 
+
+    class WriteTask extends AsyncTask<String,Void,Void>
+    {
+
+        @Override
+        protected Void doInBackground(String... strings) {
+            PrintWriter out = null;
+            try {
+                out = new PrintWriter(new BufferedWriter(
+                        new OutputStreamWriter(socket.getOutputStream())), true);
+                out.println(quit_msg);
+                out.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+    }
+
+    class ConnectionTask extends AsyncTask<String, String, String> {
+
+        protected String doInBackground(String... params) {
+            String responce = "";
+            try {
+
+                String str = params[0];
+                Log.d("params",str);
+
+                PrintWriter out = new PrintWriter(new BufferedWriter(
+                        new OutputStreamWriter(socket.getOutputStream())), true);
+                out.println(str);
+                out.flush();
+
+                InputStream input = socket.getInputStream();
+                int lockSeconds = 10 * 1000;
+
+                long lockThreadCheckpoint = System.currentTimeMillis();
+                int availableBytes = input.available();
+                while (availableBytes <= 0 && (System.currentTimeMillis() < lockThreadCheckpoint + lockSeconds)) {
+                    try {
+                        Thread.sleep(10);
+                    } catch (InterruptedException ie) {
+                        ie.printStackTrace();
+                    }
+                    availableBytes = input.available();
+                }
+
+                byte[] buffer = new byte[availableBytes];
+                input.read(buffer, 0, availableBytes);
+                responce = new String(buffer);
+
+
+
+                //input.close();
+                //out.close();
+
+            } catch (UnknownHostException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return responce;
+        }
+
+        protected void onPostExecute(String responce) {
+
+            LinearLayout suggests = findViewById(R.id.suggestions);
+            suggests.removeAllViewsInLayout();
+
+            Log.d("p2p","working");
+
+            String[] raw_suggs = responce.split("DELIMETER");
+            for (String phrase:raw_suggs) {
+                if(!phrase.trim().isEmpty()) {
+                    View view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.item_reply_suggestions, null);
+                    final TextView sugg = view.findViewById(R.id.textContentReply);
+                    sugg.setText(phrase);
+                    sugg.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            sendMessage(fuser.getUid(), userid, sugg.getText().toString());
+                        }
+                    });
+                    suggests.addView(view);
+                }
+            }
+
+            //new WriteTask().execute();
+        }
+    }
+
+    class ClientThread implements Runnable {
+
+        @Override
+        public void run() {
+            try {
+                InetAddress serverAddr = InetAddress.getByName(ip);
+
+                socket = new Socket(serverAddr, port);
+            } catch (Exception e) {
+
+            }
+
+        }
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -318,4 +480,16 @@ public class MessageActivity extends AppCompatActivity {
         status("offline");
         currentUser("none");
     }
+
+    @Override
+    protected void onDestroy() {
+        //new WriteTask().execute();
+        try {
+            socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        super.onDestroy();
+    }
+
 }

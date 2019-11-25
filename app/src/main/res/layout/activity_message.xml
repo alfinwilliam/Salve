@@ -40,36 +40,67 @@
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.recyclerview.widget.RecyclerView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
         android:id="@+id/recycler_view"
-        android:layout_below="@id/bar_layout"
-        android:layout_above="@id/bottom"/>
+        android:layout_width="match_parent"
+        android:layout_height="482dp"
+        android:layout_below="@id/bar_layout" />
+
+    <LinearLayout
+        android:id="@+id/spanel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/bottom"
+        android:layout_below="@+id/recycler_view"
+        android:layout_marginTop="0dp"
+        android:layout_marginBottom="0dp"
+        android:orientation="horizontal">
+
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:id="@+id/suggestions"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="horizontal" >
+
+                <TextView
+                    android:id="@+id/textView10"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="TextView" />
+            </LinearLayout>
+        </HorizontalScrollView>
+
+
+    </LinearLayout>
 
     <RelativeLayout
-        android:layout_width="match_parent"
-        android:padding="5dp"
         android:id="@+id/bottom"
-        android:background="#fff"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_height="wrap_content">
+        android:background="#fff"
+        android:padding="5dp">
 
         <EditText
+            android:id="@+id/text_send"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/text_send"
-            android:background="@android:color/transparent"
-            android:hint="Type a message..."
+            android:layout_centerVertical="true"
             android:layout_toLeftOf="@id/btn_send"
-            android:layout_centerVertical="true"/>
+            android:background="@android:color/transparent"
+            android:hint="Type a message..." />
 
         <ImageButton
+            android:id="@+id/btn_send"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:background="@drawable/ic_action_name"
-            android:id="@+id/btn_send"
             android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true" />
+            android:layout_alignParentRight="true"
+            android:background="@drawable/ic_action_name" />
 
     </RelativeLayout>
 
