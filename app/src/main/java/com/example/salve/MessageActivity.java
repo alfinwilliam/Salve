@@ -91,6 +91,8 @@ public class MessageActivity extends AppCompatActivity {
 
     APIService apiService;
 
+    String last_qry = "";
+
     boolean notify = false;
 
     @Override
@@ -322,6 +324,7 @@ try {
     int count = pinfo.size() - 1;
     LinearLayout spanel = findViewById(R.id.spanel);
     if (pinfo.get(count).equals(false)) {
+        if(!last_qry.equals(mchat.get(count).getMessage()))
         new ConnectionTask().execute(mchat.get(count).getMessage());
         spanel.setVisibility(View.VISIBLE);
     } else {
@@ -359,24 +362,6 @@ try {
     }
 
 
-    class WriteTask extends AsyncTask<String,Void,Void>
-    {
-
-        @Override
-        protected Void doInBackground(String... strings) {
-            PrintWriter out = null;
-            try {
-                out = new PrintWriter(new BufferedWriter(
-                        new OutputStreamWriter(socket.getOutputStream())), true);
-                out.println(quit_msg);
-                out.flush();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-    }
-
     class ConnectionTask extends AsyncTask<String, String, String> {
 
         protected String doInBackground(String... params) {
@@ -384,6 +369,7 @@ try {
             try {
 
                 String str = params[0];
+                last_qry = params[0];
                 Log.d("params",str);
 
                 PrintWriter out = new PrintWriter(new BufferedWriter(
@@ -421,6 +407,7 @@ try {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+
             return responce;
         }
 
