@@ -42,7 +42,7 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view"
         android:layout_width="match_parent"
-        android:layout_height="482dp"
+        android:layout_height="701dp"
         android:layout_below="@id/bar_layout" />
 
     <LinearLayout

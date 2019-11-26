@@ -384,7 +384,7 @@ try {
                 int availableBytes = input.available();
                 while (availableBytes <= 0 && (System.currentTimeMillis() < lockThreadCheckpoint + lockSeconds)) {
                     try {
-                        Thread.sleep(10);
+                        Thread.sleep(9);
                     } catch (InterruptedException ie) {
                         ie.printStackTrace();
                     }
