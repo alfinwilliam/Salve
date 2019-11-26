@@ -394,8 +394,8 @@ try {
                 byte[] buffer = new byte[availableBytes];
                 input.read(buffer, 0, availableBytes);
                 responce = new String(buffer);
-
-
+		//socket = new socket(buffer);
+		//init socket;
 
                 //input.close();
                 //out.close();
