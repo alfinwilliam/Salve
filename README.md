@@ -8,7 +8,7 @@
 
 1. Download the latest version of Android Studio [here.](https://developer.android.com/studio/)
 2. Create the apk of android application using android emulator and install it on atleast 2 android devices.
-3. Run the Server.py file on Server Socket directory to initialize local server machine on your laptop / desktop.
+3. Run the Server.py file on Salve/Server_Socket directory to initialize local server machine on your laptop / desktop.
     ` async python3 server.py`
 4. Connect the android devices on to same wifi network as the local server is initialised.
 5. Run android application and start chat to view context relevant reply suggestions as responses.
@@ -21,7 +21,7 @@ and took 40 hours of training. We are providing our trained model at Salve/Serve
 to increase accuracy.
 * For more information regarding training model , refer this [blog](http://complx.me/2016-12-31-practical-seq2seq/).
 
-This project was created as a Mini project for Semester 5 MCA at College of Engineering Trivandrum.
+This project was created as a Mini project under the guidance of Prof. Jose T Joseph for Semester 5 MCA at College of Engineering Trivandrum.
 
 # Contributors
 
